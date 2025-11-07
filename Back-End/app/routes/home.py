@@ -111,14 +111,13 @@ async def create_contact(name: str = Form(),
     if not user_id:
         raise HTTPException(status_code=404, detail="Profile not found")
   
-    insert_stmt = insert(Contact).values(
-        user_id = user_id,
-        barangay = barangay,
-        city = city,
-        email = email,
-        mobile= mobile,
-        profile = user_id
-    ).on_conflict_do_update(
+    insert_stmt = insert(Contact).values({
+        "user_id": user_id,
+        "barangay": barangay,
+        "city": city,
+        "email": email,
+        "mobile": mobile
+    }).on_conflict_do_update(
     index_elements=["user_id"],
     set_={
         "barangay": barangay,
@@ -127,10 +126,9 @@ async def create_contact(name: str = Form(),
         "mobile": mobile
     })
     
-    await session.rollback()
     await session.execute(insert_stmt)
     await session.commit()
-    await session.aclose()
+    await session.close()
     
     return JSONResponse({
         "status": "Successfuly added Contact",

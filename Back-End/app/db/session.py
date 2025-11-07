@@ -1,8 +1,18 @@
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
+import os
+
 class Database():
     def __init__(self):
-        self.sql_url = "postgresql+asyncpg://postgres:admin123@localhost/myportfolio"
+        load_dotenv()
+        USER = os.getenv("user")
+        PASSWORD = os.getenv("password")
+        HOST = os.getenv("host")
+        PORT = os.getenv("port")
+        DBNAME = os.getenv("dbname")
+        self.sql_url = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}"
         self.engine = create_async_engine(self.sql_url)
         self.async_session = async_sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
         
