@@ -143,7 +143,7 @@ async def create_contact(name: str = Form(),
     
 
 # create Education data
-@home_router.get("/create_profile/education")
+@home_router.post("/create_profile/education")
 async def create_education(
     name:str =  Form(),
     school:str = Form(),
