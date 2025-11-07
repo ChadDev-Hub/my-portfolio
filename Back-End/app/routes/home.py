@@ -186,7 +186,6 @@ async def create_education(
     })
 
 
-
 # create work Experience
 @home_router.post("/create_profile/work")
 async def create_works(name:str = Form(...),
