@@ -86,7 +86,9 @@ class Interests(SQLModel, table=True):
     id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
     user_id: Optional[int] = Field(default=None, sa_type=Integer, foreign_key="profile.id")
     interests: str = Field(default=None,unique=True, sa_type=Text)
+    content: str = Field(default=None, sa_type=Text)
     proficiency: Optional[int] = Field(default=None, sa_type=Integer)
+    image: bytes = Field(default=None, sa_type=LargeBinary)
     profile: Optional[Profile] = Relationship(back_populates="interests")
     
     
