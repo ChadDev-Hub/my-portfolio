@@ -22,8 +22,8 @@ from ..db.session import Database
 from ..db.model import Profile, Contact, Education, Project, Works, Skills, Interests, Duties, Lang
 import psycopg2 as pg
 load_dotenv()
-sess = Database().get_session
-
+db = Database()
+dispose = Database().close()
 def send_email(subject, body, image, sender, recipient, password):
     msg = MIMEMultipart()
     msg['Subject'] = subject
@@ -70,7 +70,7 @@ async def create_profile(
                          summary: Annotated[str, Form()],
                          content: Annotated[str, Form()],
                          profile: UploadFile = File(None),
-                         session:AsyncSession = Depends(sess)):
+                         session:AsyncSession = Depends(db.get_session)):
 # Inserting Data into Database
     image = await profile.read()
     stmt = insert(Profile).values({
@@ -104,7 +104,7 @@ async def create_contact(name: str = Form(),
                          city:str =Form(),
                          email:str = Form(),
                          mobile:str = Form(),
-                         session: AsyncSession = Depends(sess)):
+                         session: AsyncSession = Depends(db.get_session)):
     stmt = select(Profile.id).where(Profile.name == name)
     result = await session.execute(stmt)
     user_id  = result.scalar_one()
@@ -152,7 +152,7 @@ async def create_education(
     year:str = Form(),
     datestarted: str = Form(),
     dategraduated: str = Form(),
-    session: AsyncSession = Depends(sess)):
+    session: AsyncSession = Depends(db.get_session)):
     
     datestart = datetime.strptime(datestarted,"%m-%d-%Y").date()
     dategrad = datetime.strptime(dategraduated,"%m-%d-%Y").date()
@@ -194,7 +194,7 @@ async def create_works(name:str = Form(...),
                        companyaddress:str = Form(),
                        datehired:str = Form(),
                        dateend:str = Form(),
-                       session:AsyncSession = Depends(sess)):
+                       session:AsyncSession = Depends(db.get_session)):
     stmt = select(Profile.id).where(Profile.name == name)
     user_id = await session.scalar(stmt)
     if not user_id:
@@ -225,7 +225,7 @@ async def create_works(name:str = Form(...),
 
 # create duties
 @home_router.post("/create_profile/duties")
-async def create_duties(workname:str= Form(),company:str =Form(), duty:str = Form(), session:AsyncSession = Depends(sess)):
+async def create_duties(workname:str= Form(),company:str =Form(), duty:str = Form(), session:AsyncSession = Depends(db.get_session)):
     stmt = select(Works.id).where(Works.position == workname and Works.company_name == company)
     query = await session.execute(stmt)
     work_id = query.scalar()
@@ -252,7 +252,7 @@ async def create_duties(workname:str= Form(),company:str =Form(), duty:str = For
 
 # create skills
 @home_router.post("/create_profile/skills")
-async def create_skills(session:AsyncSession = Depends(sess),
+async def create_skills(session:AsyncSession = Depends(db.get_session),
                         name:str = Form(),
                         skill:str = Form(),
                         profeciency:int = Form(),
@@ -291,7 +291,7 @@ async def create_skills(session:AsyncSession = Depends(sess),
     
 # CREATE LANGUAGE
 @home_router.post("/create_profile/language")
-async def create_language(session:AsyncSession = Depends(sess), user:str = Form(), lang:str = Form(), prof:int = Form()):
+async def create_language(session:AsyncSession = Depends(db.get_session), user:str = Form(), lang:str = Form(), prof:int = Form()):
     print(lang)
     stmt = select(Profile.id).where(Profile.name == user)
     query = await session.execute(stmt)
@@ -321,7 +321,7 @@ async def create_language(session:AsyncSession = Depends(sess), user:str = Form(
     
 # CREATE INTERESTS
 @home_router.post("/create_profile/interests")
-async def create_interests(session:AsyncSession=Depends(sess), user:str = Form(), interests:str = Form(), prof:int = Form()):
+async def create_interests(session:AsyncSession=Depends(db.get_session), user:str = Form(), interests:str = Form(), prof:int = Form()):
     stmt = select(Profile.id).where(Profile.name == user)
     query = await session.execute(stmt)
     user_id = query.scalar()
@@ -352,7 +352,7 @@ async def create_interests(session:AsyncSession=Depends(sess), user:str = Form()
 
 # fetch resume data
 @home_router.get("/profile/resume_data")
-async def get_resume_data(user:int, session:AsyncSession = Depends(sess)):
+async def get_resume_data(user:int, session:AsyncSession = Depends(db.get_session)):
     
     contact_stmt = select(Contact.barangay, Contact.city, Contact.email, Contact.mobile).join(Profile).where(Profile.id == user)
     
@@ -482,7 +482,7 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(sess)):
 
 # fetch data from the database for Landingpage
 @home_router.get("/")
-async def landing_page(session:AsyncSession =  Depends(sess), greetings:dict = Depends(greet)):
+async def landing_page(session:AsyncSession =  Depends(db.get_session), greetings:dict = Depends(greet)):
     stmt = select(Profile.name, Profile.about, Profile.summary, Profile.profilepic).order_by(asc(cast(Profile.id, Integer)))
     profile = await session.execute(stmt)
     row = profile.first()
@@ -516,7 +516,7 @@ async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] 
         
     
 @home_router.get("/home_page")
-async def get_data(session:AsyncSession = Depends(sess)):
+async def get_data(session:AsyncSession = Depends(db.get_session)):
     stmt = select(Profile.content, Profile.profilepic).order_by(asc(cast(Profile.id, Integer)))
     result = await session.execute(stmt)
     row = result.first()
