@@ -17,16 +17,11 @@ import ComputerTwoToneIcon from '@mui/icons-material/ComputerTwoTone';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined';
 function Homepage() {
+    const baseUrl = import.meta.env.VITE_BASE_URL
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true);
     const [ishovered, setHovered] = useState(false)
     const [menus, setMenu] = useState([
-        {
-            name: "INFO",
-            active_icon: <InfoIcon />,
-            inactive_icon: <InfoOutlinedIcon/>,
-            isActive: true
-        },
         {
             name: "APP",
             active_icon: <ComputerTwoToneIcon/>,
@@ -37,7 +32,7 @@ function Homepage() {
             name: "RESUME",
             active_icon: <BadgeIcon/>,
             inactive_icon: <BadgeOutlinedIcon/>,
-            isActive: false
+            isActive: true
         },
         {
             name: "WORK EXPERIENCE",
@@ -45,8 +40,26 @@ function Homepage() {
             inactive_icon: <WorkOutlineOutlinedIcon/>,
             isActive: false
 
+        },
+        {
+            name: "INFO",
+            active_icon: <InfoIcon />,
+            inactive_icon: <InfoOutlinedIcon/>,
+            isActive: false
         }
     ])
+    const [resumeData, setResumeData] = useState([])
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const res_data = await axios.get(`${baseUrl}/profile/resume_data?user=1`);
+                setResumeData(res_data.data);
+            } catch (error) {
+                console.error(error);
+            };
+        };
+        fetchData();
+    }, []);
 
     function handleHover() {
         setHovered(true)
@@ -75,7 +88,7 @@ function Homepage() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const baseUrl = import.meta.env.VITE_BASE_URL
+                
                 console.log(baseUrl)
                 const result = await axios.get(`${baseUrl}/home_page`)
                 setData(result.data)
@@ -87,7 +100,7 @@ function Homepage() {
         }
         fetchData();
     }, [])
-
+    console.log(resumeData)
     return (
         <>
         <Navigation click={handleClick} navdata={data} />
@@ -105,8 +118,8 @@ function Homepage() {
             </Row>
             <Row className="vh-100 overflow-auto flex-grow-1">
                 <Col  className="d-flex ms-3 pb-3 justify-content-center">
-                    {menus[0].isActive && <Info infodata={data} />}
-                    {menus[2].isActive && <Resume />}
+                    {menus[3].isActive && <Info infodata={data} />}
+                    {menus[1].isActive && <Resume data = {resumeData}/>}
                 </Col>
             </Row>
         </Container>

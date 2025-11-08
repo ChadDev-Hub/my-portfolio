@@ -19,7 +19,7 @@ import os
 import base64
 from io import BytesIO
 from ..db.session import Database
-from ..db.model import Profile, Contact, Education, Project, Works, Skills, Interests, Duties
+from ..db.model import Profile, Contact, Education, Project, Works, Skills, Interests, Duties, Lang
 import psycopg2 as pg
 load_dotenv()
 sess = Database().get_session
@@ -288,8 +288,67 @@ async def create_skills(session:AsyncSession = Depends(sess),
         "proficiency" : profeciency,
         "category": category
     })
-
-
+    
+# CREATE LANGUAGE
+@home_router.post("/create_profile/language")
+async def create_language(session:AsyncSession = Depends(sess), user:str = Form(), lang:str = Form(), prof:int = Form()):
+    print(lang)
+    stmt = select(Profile.id).where(Profile.name == user)
+    query = await session.execute(stmt)
+    user_id = query.scalar()
+    if not user_id:
+        return HTTPException(404,"Item not Found")
+    upsert_stmt = insert(Lang).values({
+        "user_id": user_id,
+        "language": lang,
+        "proficiency": prof
+    }).on_conflict_do_update(
+        index_elements=["language"],
+        set_={
+            "proficiency": prof
+        },
+        where= (Lang.user_id == user_id)
+    )
+    await session.execute(upsert_stmt)
+    await session.commit()
+    await session.close()
+    
+    return JSONResponse({
+        "user_id": user_id,
+        "language": lang,
+        "proficiency": prof
+    })
+    
+# CREATE INTERESTS
+@home_router.post("/create_profile/interests")
+async def create_interests(session:AsyncSession=Depends(sess), user:str = Form(), interests:str = Form(), prof:int = Form()):
+    stmt = select(Profile.id).where(Profile.name == user)
+    query = await session.execute(stmt)
+    user_id = query.scalar()
+    if not user_id:
+        return HTTPException(404, "Item not Found")
+    upsert_stmt = insert(Interests).values({
+        "user_id": user_id,
+        "interests": interests,
+        "proficiency": prof
+    }).on_conflict_do_update(
+        index_elements=[Interests.interests],
+        set_={
+            "user_id": user_id,
+            "proficiency": prof
+        },
+        where= (Interests.user_id == user_id)
+    )
+    
+    await session.execute(upsert_stmt)
+    await session.commit()
+    await session.close()
+    
+    return JSONResponse({
+        "user_id": user_id,
+        "interests": interests,
+        "proficiency": prof
+    })
 
 # fetch resume data
 @home_router.get("/profile/resume_data")
@@ -327,12 +386,24 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(sess)):
         func.array_agg(Skills.skill).label("skill"),
         func.array_agg(Skills.proficiency).label("profeciency")).where(Skills.user_id == user).group_by(Skills.category).order_by(Skills.category)
     
+    lang_stmt = select(
+        Lang.language,
+        Lang.proficiency
+    ).where(Lang.user_id == user)
+    
+    interests_stmt = select(
+        Interests.interests,
+        Interests.proficiency
+    ).where(Interests.user_id == user)
+    
     # QUERY EXECUTION
     await session.rollback()
     contact_result = await session.execute(contact_stmt)
     education_query = await session.execute(education_stmt)
     work_query =  await session.execute(work_stmt,{"user_id": user})
     skills_query = await session.execute(skills_stmt)
+    lang_query = await session.execute(lang_stmt)
+    interests_query = await session.execute(interests_stmt)
     await session.aclose()
     
     contact_data = contact_result.mappings().all()
@@ -352,6 +423,15 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(sess)):
     skill_data = skills_query.mappings().all()
     if not skill_data:
         return HTTPException(404, "Skill Data not found")
+    
+    lang_data = lang_query.mappings().all()
+    if not lang_data:
+        return HTTPException(404, "Language Data not found")
+    
+    interest_data = interests_query.mappings().all()
+    if not interest_data:
+        return HTTPException(404 , "Interests Data not Found")
+    
     
     # # CONTACT
     contact_response = [{
@@ -385,13 +465,18 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(sess)):
                   "skills": [{"name": s,
                               "prof": p} for (s,p) in zip(i['skill'],i['profeciency'])]
                   }for i in skill_data]
+    # LANGUAGE RESPONSE
+    lang_response = [{"language": lan['language'], "proficiency": lan['proficiency']} for lan in lang_data]
     
+    # INTERESTS DATA
+    interests_response = [{"interest": interst['interests'], "proficiency": interst['proficiency']}for interst in interest_data]
     return JSONResponse({
         "contact_data": contact_response,
         "education_data": education_response,
         "works_data": work_response,
-        "skills_data": skills_response
-        
+        "skills_data": skills_response,
+        "language_data": lang_response,
+        "interests_data": interests_response
     })
     
 

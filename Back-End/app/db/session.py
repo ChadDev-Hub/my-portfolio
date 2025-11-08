@@ -1,5 +1,6 @@
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.pool import NullPool
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
 import os

@@ -17,6 +17,7 @@ class Profile(SQLModel, table = True):
     works: list["Works"] = Relationship(back_populates="profile", cascade_delete=True)
     skills: list["Skills"] = Relationship(back_populates="profile", cascade_delete=True)
     interests: list["Interests"] = Relationship(back_populates="profile", cascade_delete=True)
+    lang: list["Lang"] = Relationship(back_populates="profile", cascade_delete=True)
     
 class Project(SQLModel, table = True):
     id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
@@ -72,7 +73,15 @@ class Skills(SQLModel, table=True):
     proficiency: Optional[int] = Field(default=None, sa_type=Integer)
     category: Optional[str] = Field(default=None, sa_type=Text)
     profile: Optional[Profile] = Relationship(back_populates="skills")
-    
+
+class Lang(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
+    user_id: Optional[int] = Field(default=None, sa_type=Integer, foreign_key="profile.id")
+    language: Optional[str] = Field(default=None, unique=True, sa_type=Text)
+    proficiency: Optional[int] = Field(default=None, sa_type=Integer)
+    profile: Optional[Profile] = Relationship(back_populates="lang")
+
+
 class Interests(SQLModel, table=True):
     id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
     user_id: Optional[int] = Field(default=None, sa_type=Integer, foreign_key="profile.id")
