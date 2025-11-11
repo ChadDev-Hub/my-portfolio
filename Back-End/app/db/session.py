@@ -20,10 +20,6 @@ class Database():
     async def create_db_and_table(self):
         async with self.engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
-            
-    async def get_session(self):
-        async with self.async_session() as session:
-            yield session
     
     async def close(self):
         if self.engine:
