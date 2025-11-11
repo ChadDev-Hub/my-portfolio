@@ -46,23 +46,18 @@ async def send_email(subject, body, image:Optional[bytes], sender, recipient, pa
 
 
 def greet():
-    time_now = datetime.now().strftime("%H")
-    if isinstance(time_now, str):
-        time_now = int(time_now.replace("0","") or "0")
-    else:
-        time_now = int(time_now)
+    hour = datetime.now().hour  # directly get hour as integer
     
-    if time_now <= 9:
-        greetings = "Good Morning 🌅"
-    elif time_now > 9 and time_now <= 12:
-        greetings = "Good Noon ☀️"
-    elif time_now > 12 and time_now <= 17:
-        greetings = "Good Afternoon 🕑"
+    if hour < 10:
+        greeting = "Good Morning 🌅"
+    elif hour <= 12:
+        greeting = "Good Noon ☀️"
+    elif hour <= 17:
+        greeting = "Good Afternoon 🕑"
     else:
-        greetings = "Good Evening 🌃" 
-    return {
-        "greeting": greetings
-    }
+        greeting = "Good Evening 🌃"
+    
+    return {"greeting": greeting}
 
 @home_router.post("/create_profile")
 async def create_profile( 
