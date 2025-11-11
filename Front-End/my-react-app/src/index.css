@@ -102,11 +102,18 @@
 }
 
 
+.rubik-dirt-text-sub {
+  font-family: "Rubik Dirt", cursive;
+  color: #2F3E46;
+  overflow: hidden;
+  background-color: transparent;
+  font-size: 2rem;
+}
+
 .rubik-dirt-text {
   font-family: "Rubik Dirt", cursive;
   text-align: start;
-  font-size: 5rem;
-  color:white;
+  color: whitesmoke;
   overflow: hidden;
   background-color: transparent;
 }
@@ -319,6 +326,15 @@ footer {
   
 }
 
+.links{
+  width: 2rem;
+  height: 2rem;
+}
+
+.links:hover{
+  transform: scale(1.2) translate(20%,0);
+}
+
 .icon-skills{
     width: 3rem;
     height: 3rem;
@@ -357,6 +373,19 @@ footer {
   width: 200px;
 }
 
+
+.no-arrow .accordion-button::after {
+  display: none !important;
+}
+
+.bg-lightblue{
+  background-color: #daf0ff;
+}
+
+.interests-icon{
+  max-width: 150px;
+  max-height: 150px;
+}
 
 @media screen and (max-width: 480px) {
 
@@ -400,5 +429,10 @@ footer {
 }
 .sidepanel.show{
   width: 100%;
+}
+
+.interests-icon{
+  max-width: 90px;
+  max-height: 90px;
 }
 }

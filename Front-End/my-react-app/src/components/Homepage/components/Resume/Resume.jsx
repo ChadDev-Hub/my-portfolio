@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Stack } from "react-bootstrap";
-import {TextLoading, ResumeDataLoading} from "../../Loading";
+import {TextLoading, ResumeDataLoading} from "../../../Loading";
 import axios from "axios";
 
 function Resume(props) {

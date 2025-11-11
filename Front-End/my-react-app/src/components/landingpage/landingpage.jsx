@@ -15,17 +15,15 @@ import axios from 'axios'
 const baseUrl = import.meta.env.VITE_BASE_URL
 
 
-// Landing Page
 function Landing() {
   const [data, setData] = useState("");
   const [isFormShow, setFormShow] = useState(false)
   const [isSent, setIsSent] = useState(false)
-  const [loading, setLoading] = useState(true);  // for loading state
-  const [error, setError] = useState(null);  // for error handling
+
   
 
   
-  function handleMessageClick(event){
+  function handleMessageClick(){
     setFormShow(
       !isFormShow
     )
@@ -49,10 +47,8 @@ function Landing() {
         const result = await axios.get(`${baseUrl}/`);
         setTimeout(()=>setData(result.data),5000);
       } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+        console.log(err.message);
+      } 
     };
     fetchData();
   }, []);

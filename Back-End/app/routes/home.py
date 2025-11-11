@@ -1,30 +1,31 @@
-from fastapi import APIRouter, Request, Response, Depends, Body, Form, UploadFile, File
+from fastapi import APIRouter, Depends, Form, UploadFile, File
 from fastapi.exceptions import HTTPException
-from sqlmodel import cast, Integer, select , asc, desc, func, text, ColumnDefault, literal_column, Column
-from sqlalchemy.dialects.postgresql import insert, JSON
+from sqlmodel import cast, Integer, select , asc, desc, func, text
+from sqlalchemy.dialects.postgresql import insert
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import ColumnElement
-home_router = APIRouter()
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from typing import Annotated
-from datetime import datetime, date
+from datetime import datetime
 import os
 import base64
-from io import BytesIO
 from ..db.session import Database
-from ..db.model import Profile, Contact, Education, Project, Works, Skills, Interests, Duties, Lang
-import psycopg2 as pg
+from ..db.model import Profile, Contact, Education, Works, Skills, Interests, Duties, Lang, Tools
+from typing import Optional
+from contextlib import asynccontextmanager
+
+
 load_dotenv()
+home_router = APIRouter()
 db = Database()
-dispose = Database().close()
-def send_email(subject, body, image, sender, recipient, password):
+        
+async def send_email(subject, body, image:Optional[bytes], sender, recipient, password):
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = sender
@@ -92,7 +93,7 @@ async def create_profile(
     
     await session.execute(upsert_stmt)
     await session.commit()
-    await session.close()
+    
     return JSONResponse({
         "status": "successfull"
     })
@@ -128,7 +129,7 @@ async def create_contact(name: str = Form(),
     
     await session.execute(insert_stmt)
     await session.commit()
-    await session.close()
+    
     
     return JSONResponse({
         "status": "Successfuly added Contact",
@@ -173,7 +174,7 @@ async def create_education(
         "date_graduated" : dategrad})
     await session.execute(insert_stmt)
     await session.commit()
-    await session.close()
+    
     
     return JSONResponse({
         "status": "Upsert Successfull",
@@ -209,7 +210,7 @@ async def create_works(name:str = Form(...),
     })
     await session.execute(insert_stmt)
     await session.commit()
-    await session.close()
+   
     
     return JSONResponse({
         "status" : "INSERT COMPLETED",
@@ -243,7 +244,7 @@ async def create_duties(workname:str= Form(),company:str =Form(), duty:str = For
     )
     await session.execute(upsert_statement)
     await session.commit()
-    await session.close()
+    
     return JSONResponse({
         "status": "UPSERT COMPLETED",
         "work_id": work_id,
@@ -279,7 +280,7 @@ async def create_skills(session:AsyncSession = Depends(db.get_session),
     
     await session.execute(insert_stmt)
     await session.commit()
-    await session.close()
+    
     
     return JSONResponse({
         "status": "INSERT SUCCESSFUL",
@@ -311,7 +312,7 @@ async def create_language(session:AsyncSession = Depends(db.get_session), user:s
     )
     await session.execute(upsert_stmt)
     await session.commit()
-    await session.close()
+   
     
     return JSONResponse({
         "user_id": user_id,
@@ -321,34 +322,86 @@ async def create_language(session:AsyncSession = Depends(db.get_session), user:s
     
 # CREATE INTERESTS
 @home_router.post("/create_profile/interests")
-async def create_interests(session:AsyncSession=Depends(db.get_session), user:str = Form(), interests:str = Form(), prof:int = Form()):
+async def create_interests(session:AsyncSession=Depends(db.get_session),
+                           user:str = Form(),
+                           interests:str = Form(),
+                           prof:int = Form(),
+                           content:str = Form(),
+                           image:UploadFile = File(None)):
     stmt = select(Profile.id).where(Profile.name == user)
     query = await session.execute(stmt)
+    image_data = await image.read()
     user_id = query.scalar()
     if not user_id:
         return HTTPException(404, "Item not Found")
     upsert_stmt = insert(Interests).values({
         "user_id": user_id,
         "interests": interests,
-        "proficiency": prof
+        "proficiency": prof,
+        "content": content,
+        "image": image_data
     }).on_conflict_do_update(
         index_elements=[Interests.interests],
         set_={
             "user_id": user_id,
-            "proficiency": prof
+            "proficiency": prof,
+            "content": content,
+            "image": image_data
         },
         where= (Interests.user_id == user_id)
     )
     
     await session.execute(upsert_stmt)
     await session.commit()
-    await session.close()
     
     return JSONResponse({
+        "status": "UPSERT SUCCESSFULL",
         "user_id": user_id,
         "interests": interests,
-        "proficiency": prof
+        "proficiency": prof,
+        "content": content,
+        "image": base64.b64encode(image_data).decode("utf-8")
     })
+    
+#CREATE TOOLS
+@home_router.post("/create_profile/tools")
+async def create_tools(session:AsyncSession = Depends(db.get_session),
+                       user:str = Form(),
+                       tool_name:str = Form(),
+                       content:str = Form(),
+                       proficiency:int = Form(),
+                       image:UploadFile = File(None)):
+    stmt = select(Profile.id).where(Profile.name == user)
+    query = await session.execute(stmt)
+    user_id = query.scalar()
+    if not user_id:
+        return HTTPException(404, "Item not Found")
+    image_data = await image.read()
+    upsert_stmt = insert(Tools).values({
+        "user_id": user_id,
+        "tool_name": tool_name,
+        "content": content,
+        "proficiency": proficiency,
+        "image": image_data
+    }).on_conflict_do_update(
+        index_elements=["tool_name"],
+        set_={
+            "user_id": user_id,
+            "content": content,
+            "proficiency": proficiency,
+            "image": image_data
+        },
+        where=(Tools.user_id == user_id)
+    )
+    await session.execute(upsert_stmt)
+    await session.commit()
+    return JSONResponse({
+        "user_id": user_id,
+        "content": content,
+        "proficiency": proficiency,
+        "image": base64.b64encode(image_data).decode("utf-8")
+    })
+
 
 # fetch resume data
 @home_router.get("/profile/resume_data")
@@ -393,18 +446,29 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(db.get_sessio
     
     interests_stmt = select(
         Interests.interests,
-        Interests.proficiency
+        Interests.proficiency,
+        Interests.content,
+        Interests.image
     ).where(Interests.user_id == user)
     
-    # QUERY EXECUTION
-    await session.rollback()
+    
+    tools_stmt = select(
+        Tools.tool_name,
+        Tools.content,
+        Tools.image
+        ).where(Tools.user_id == user)
+    
+    
+    # QUERY EXECUTIOn
     contact_result = await session.execute(contact_stmt)
     education_query = await session.execute(education_stmt)
     work_query =  await session.execute(work_stmt,{"user_id": user})
     skills_query = await session.execute(skills_stmt)
     lang_query = await session.execute(lang_stmt)
     interests_query = await session.execute(interests_stmt)
-    await session.aclose()
+    tools_query = await session.execute(tools_stmt)
+    
+    
     
     contact_data = contact_result.mappings().all()
     if not contact_data:
@@ -432,8 +496,12 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(db.get_sessio
     if not interest_data:
         return HTTPException(404 , "Interests Data not Found")
     
+    tools_data = tools_query.mappings().all()
+    if not tools_data:
+        return HTTPException(404, "Tools Data not Found")
     
-    # # CONTACT
+    
+    # CONTACT
     contact_response = [{
         "barangay": i.barangay,
         "city": i.city,
@@ -469,15 +537,26 @@ async def get_resume_data(user:int, session:AsyncSession = Depends(db.get_sessio
     lang_response = [{"language": lan['language'], "proficiency": lan['proficiency']} for lan in lang_data]
     
     # INTERESTS DATA
-    interests_response = [{"interest": interst['interests'], "proficiency": interst['proficiency']}for interst in interest_data]
+    interests_response = [{"interest": interst['interests'],
+                           "proficiency": interst['proficiency'],
+                           "content": interst['content'],
+                           "image": base64.b64encode(interst['image']).decode("utf-8")}for interst in interest_data]
+    
+    # TOOLS DATA
+    tools_response = [{"name": tool['tool_name'],
+                       "content": tool['content'],
+                       "image": base64.b64encode(tool['image']).decode("utf-8")} for tool in tools_data]
+    
     return JSONResponse({
         "contact_data": contact_response,
         "education_data": education_response,
         "works_data": work_response,
         "skills_data": skills_response,
         "language_data": lang_response,
-        "interests_data": interests_response
+        "interests_data": interests_response,
+        "tools_data": tools_response
     })
+    
     
 
 # fetch data from the database for Landingpage
@@ -498,10 +577,8 @@ async def landing_page(session:AsyncSession =  Depends(db.get_session), greeting
         "profile": profile_image,
         "time": greetings['greeting']
     }
-    await session.aclose()
+    
     return JSONResponse(data)
-
-
 
 @home_router.post("/send_email")
 async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] , file:UploadFile = File(None)):
@@ -511,8 +588,12 @@ async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] 
     subject = "Portfolio Message"
     body = f"Email From: {email}\n\n{content}"
     password = os.getenv("GOOGLEPASSWORD")
-    send_email(subject=subject, body=body, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com", password=password)
-    print("email sent: data")
+    replymessage = f"Thank you for messaging. Please wait I'm reviewing your message.\n\nSincerly,\nRichard Rojo"
+    await send_email(subject=subject, body=body, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com", password=password)
+    await send_email(subject="Richard Reply",
+                     body= replymessage,
+                     image=None, recipient=email, sender="richardrojo61@gmail.com", password=password)
+
         
     
 @home_router.get("/home_page")

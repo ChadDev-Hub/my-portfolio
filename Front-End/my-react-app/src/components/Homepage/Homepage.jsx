@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import InfoIcon from '@mui/icons-material/Info';
 import ComputerIcon from '@mui/icons-material/Computer';
 import WorkIcon from '@mui/icons-material/Work';
-import Info from "./components/Information";
+import Info from "./components/Information/Information";
 import axios from "axios";
-import Resume from "./components/Resume";
+import Resume from "./components/Resume/Resume";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -15,38 +15,41 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ComputerTwoToneIcon from '@mui/icons-material/ComputerTwoTone';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import DescriptionIcon from '@mui/icons-material/Description';
+
 function Homepage() {
     const baseUrl = import.meta.env.VITE_BASE_URL
     const [data, setData] = useState(null)
-    const [loading, setLoading] = useState(true);
     const [ishovered, setHovered] = useState(false)
     const [menus, setMenu] = useState([
         {
-            name: "APP",
-            active_icon: <ComputerTwoToneIcon/>,
-            inactive_icon: <ComputerIcon />,
-            isActive: false
+            name: "ABOUT ME",
+            active_icon: <InfoIcon />,
+            inactive_icon: <InfoOutlinedIcon/>,
+            isActive: true
         },
         {
             name: "RESUME",
             active_icon: <BadgeIcon/>,
             inactive_icon: <BadgeOutlinedIcon/>,
-            isActive: true
+            isActive: false
         },
         {
-            name: "WORK EXPERIENCE",
-            active_icon: <WorkIcon />,
-            inactive_icon: <WorkOutlineOutlinedIcon/>,
+            name: "APP & PROJECTS",
+            active_icon: <ComputerTwoToneIcon/>,
+            inactive_icon: <ComputerIcon />,
+            isActive: false
+        },
+        
+        {
+            name: "CERTIFICATES",
+            active_icon: <DescriptionIcon />,
+            inactive_icon: <DescriptionOutlinedIcon/>,
             isActive: false
 
-        },
-        {
-            name: "INFO",
-            active_icon: <InfoIcon />,
-            inactive_icon: <InfoOutlinedIcon/>,
-            isActive: false
         }
+        
     ])
     const [resumeData, setResumeData] = useState([])
     useEffect(() => {
@@ -59,7 +62,7 @@ function Homepage() {
             };
         };
         fetchData();
-    }, []);
+    }, [baseUrl]);
 
     function handleHover() {
         setHovered(true)
@@ -94,16 +97,13 @@ function Homepage() {
                 setData(result.data)
             } catch (error) {
                 console.log("Error", error)
-            } finally {
-                setLoading(false)
             }
         }
         fetchData();
-    }, [])
-    console.log(resumeData)
+    }, [baseUrl])
     return (
         <>
-        <Navigation click={handleClick} navdata={data} />
+        <Navigation show={ishovered} click={handleClick} navdata={data} />
         <Container fluid className="d-flex  ps-0 me-2">
             <Row className= {`vh-100 flex-shrink-1`}>
                 <Col>
@@ -118,7 +118,7 @@ function Homepage() {
             </Row>
             <Row className="vh-100 overflow-auto flex-grow-1">
                 <Col  className="d-flex ms-3 pb-3 justify-content-center">
-                    {menus[3].isActive && <Info infodata={data} />}
+                    {menus[0].isActive && <Info infodata={data} resumedata={resumeData} />}
                     {menus[1].isActive && <Resume data = {resumeData}/>}
                 </Col>
             </Row>

@@ -18,7 +18,7 @@ class Profile(SQLModel, table = True):
     skills: list["Skills"] = Relationship(back_populates="profile", cascade_delete=True)
     interests: list["Interests"] = Relationship(back_populates="profile", cascade_delete=True)
     lang: list["Lang"] = Relationship(back_populates="profile", cascade_delete=True)
-    
+    tools: list["Tools"] = Relationship(back_populates="profile", cascade_delete=True)
 class Project(SQLModel, table = True):
     id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
     user_id: Optional[int] = Field(default=None, sa_type=Integer, foreign_key="profile.id")
@@ -90,7 +90,15 @@ class Interests(SQLModel, table=True):
     proficiency: Optional[int] = Field(default=None, sa_type=Integer)
     image: bytes = Field(default=None, sa_type=LargeBinary)
     profile: Optional[Profile] = Relationship(back_populates="interests")
-    
+
+class Tools(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, sa_type=Integer)
+    user_id: Optional[int] = Field(default=None, foreign_key="profile.id")
+    tool_name: Optional[str] = Field(default=None, unique=True, sa_type=Text)
+    content: Optional[str] = Field(default=None, sa_type=Text)
+    proficiency: Optional[int] = Field(default=None, sa_type=Integer)
+    image: Optional[bytes] = Field(default=None, sa_type=LargeBinary)
+    profile: Optional[Profile] = Relationship(back_populates="tools")
     
     
 
