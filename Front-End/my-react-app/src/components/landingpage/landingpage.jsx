@@ -33,7 +33,9 @@ function Landing() {
   
   useEffect(()=>{
     if (isSent){
-      setIsSent(false)}
+      setTimeout(() => {
+        setIsSent(false)
+      }, 3000); }
   },[isSent])
 
   useEffect(() => {
