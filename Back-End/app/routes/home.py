@@ -31,7 +31,7 @@ async def get_session():
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
         
-async def send_email(subject, body, image:Optional[bytes], sender, recipient, password):
+def send_email(subject, body, image:Optional[bytes], sender, recipient, password):
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = sender
@@ -600,8 +600,8 @@ async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] 
     body = f"Email From: {email}\n\n{content}"
     password = os.getenv("GOOGLEPASSWORD")
     replymessage = f"Thank you for messaging. Please wait I'm reviewing your message.\n\nSincerly,\nRichard Rojo"
-    await send_email(subject=subject, body=body, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com", password=password)
-    await send_email(subject="Richard Reply",
+    send_email(subject=subject, body=body, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com", password=password)
+    send_email(subject="Richard Reply",
                      body= replymessage,
                      image=None, recipient=email, sender="richardrojo61@gmail.com", password=password)
 
