@@ -20,9 +20,7 @@ function Landing() {
   const [isFormShow, setFormShow] = useState(false)
   const [isSent, setIsSent] = useState(false)
 
-  
 
-  
   function handleMessageClick(){
     setFormShow(
       !isFormShow
@@ -35,9 +33,7 @@ function Landing() {
   
   useEffect(()=>{
     if (isSent){
-     setTimeout(() => {
-      setIsSent(false)
-    }, 5000)}
+      setIsSent(false)}
   },[isSent])
 
   useEffect(() => {
@@ -45,7 +41,7 @@ function Landing() {
       try {
         const baseUrl = import.meta.env.VITE_BASE_URL
         const result = await axios.get(`${baseUrl}/`);
-        setTimeout(()=>setData(result.data),5000);
+        setData(result.data)
       } catch (err) {
         console.log(err.message);
       } 
