@@ -387,6 +387,16 @@ footer {
   max-height: 150px;
 }
 
+.glass {
+  background: rgba(255, 255, 255, 0.2);      /* semi-transparent */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* optional border */
+  border-radius: 12px;
+  
+  /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari/iOS support */
+  backdrop-filter: blur(10px);         /* other modern browsers */
+}
+
 @media screen and (max-width: 480px) {
 
   .portfolio-title{

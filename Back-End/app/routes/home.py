@@ -6,10 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from typing import Annotated
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
+import mimetypes
 from dotenv import load_dotenv
 from typing import Annotated
 from datetime import datetime
@@ -19,9 +16,12 @@ from ..db.session import Database
 from ..db.model import Profile, Contact, Education, Works, Skills, Interests, Duties, Lang, Tools
 from typing import Optional
 from contextlib import asynccontextmanager
-
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, Content, Email, To, FileContent, FileType, FileName, Disposition
+from dotenv import load_dotenv
 
 load_dotenv()
+SENGRID_API = os.getenv("SENDGRID")
 home_router = APIRouter()
 db = Database()
 
@@ -31,24 +31,30 @@ async def get_session():
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
         
-def send_email(subject, body, image:Optional[bytes], sender, recipient, password):
-    msg = MIMEMultipart()
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To']=recipient
-    
-    body = MIMEText(body)
-    msg.attach(body)
-
+def send_email(subject, body, image:Optional[bytes], sender, recipient, image_type:Optional[str], **kwrgs):
+    message = Mail(
+    from_email=sender,
+    to_emails=recipient,
+    subject=subject,
+    html_content=body)
     if image:
-        msg.attach(MIMEImage(image))
+        file_name = kwrgs.get("fname",None)
+        encoded=base64.b64encode(image).decode("utf-8")
+        attach = Attachment(
+            file_content=FileContent(encoded),
+            file_name=FileName(file_name),
+            file_type=FileType(image_type),
+            disposition=Disposition("attachment")
+        )
+        message.add_attachment(attachment=attach)
     
     
-    
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-        smtp_server.login(sender, password)
-        smtp_server.send_message(msg)
-    
+    try:
+        sg = SendGridAPIClient(SENGRID_API)
+        sg.send(message)
+    except Exception as e:
+        print(e)
+        
 
 
 def greet():
@@ -594,16 +600,24 @@ async def landing_page(session:SessionDep, greetings:dict = Depends(greet)):
 @home_router.post("/send_email")
 async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] , file:UploadFile = File(None)):
     image = None
+    file_name = None
+    file_type = None
     if file:
+        file_name = file.filename
+        file_type = file.content_type
         image = await file.read()
     subject = "Portfolio Message"
-    body = f"Email From: {email}\n\n{content}"
-    password = os.getenv("GOOGLEPASSWORD")
-    replymessage = f"Thank you for messaging. Please wait I'm reviewing your message.\n\nSincerly,\nRichard Rojo"
-    send_email(subject=subject, body=body, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com", password=password)
+    body = f'''<html>
+    <p><strong>From:</strong> {email}</p>
+    <p>{content}</p></html>'''
+    replymessage = '''<html>
+    <p>Thank you for messaging. Please wait I'm reviewing your message</p>
+    <p>Sincerly,</p
+    <p>Richard Rojo </p></html>'''
+    send_email(subject=subject, body=body, fname=file_name, image_type=file_type, sender="richardrojo61@gmail.com",image=image, recipient="richardrojo61@gmail.com")
     send_email(subject="Richard Reply",
                      body= replymessage,
-                     image=None, recipient=email, sender="richardrojo61@gmail.com", password=password)
+                     image=None,image_type=None,recipient=email, sender="richardrojo61@gmail.com")
 
         
     
