@@ -1,6 +1,6 @@
 from typing import Annotated
 from sqlmodel import Field, SQLModel, create_engine, select, Text, LargeBinary, Integer, Relationship, Date
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 
 # Profile Class
@@ -25,9 +25,14 @@ class Project(SQLModel, table = True):
     title: str = Field(default=None, unique=True, sa_type=Text, index=True)
     content: Optional[str] = Field(default=None, sa_type=Text, index=True)
     url: Optional[str] = Field(default=None, sa_type=Text, index=True)
-    image: Optional[bytes] | None = Field(default=None, sa_type= LargeBinary, index=True)
     profile: Optional[Profile] = Relationship(back_populates="project")
+    projectsimage: Optional[List["ProjectsImage"]] = Relationship(back_populates="project")
     
+class ProjectsImage(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, index=True, sa_type=Integer)
+    project_id: Optional[int] = Field(default=None, sa_type=Integer, foreign_key="project.id")
+    image: Optional[str] = Field(default=None, sa_type= Text, unique=True)
+    project: Optional[Project] = Relationship(back_populates="projectsimage")
 class Contact(SQLModel, table = True):
     id: Optional[int] = Field(default=None, sa_type=Integer, primary_key=True)
     user_id:int = Field(default=None, sa_type=Integer, unique=True, foreign_key="profile.id")

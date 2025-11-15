@@ -5,25 +5,26 @@ from sqlalchemy.dialects.postgresql import insert
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
-from typing import Annotated
-import mimetypes
+from typing import Annotated , Optional, List
+from sqlalchemy.orm import selectinload
 from dotenv import load_dotenv
-from typing import Annotated
 from datetime import datetime
 import os
 import base64
 from ..db.session import Database
-from ..db.model import Profile, Contact, Education, Works, Skills, Interests, Duties, Lang, Tools
-from typing import Optional
+from ..db.model import Profile, Contact, Education, Works, Skills, Interests, Duties, Lang, Tools, Project, ProjectsImage
 from contextlib import asynccontextmanager
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, Content, Email, To, FileContent, FileType, FileName, Disposition
 from dotenv import load_dotenv
-
+import imghdr
+from ..db.suppabase import Supa
 load_dotenv()
 SENGRID_API = os.getenv("SENDGRID")
 home_router = APIRouter()
 db = Database()
+suppabase = Supa()
+
 
 async def get_session():
     async with db.async_session() as session:
@@ -419,16 +420,72 @@ async def create_tools(session:SessionDep,
         "image": base64.b64encode(image_data).decode("utf-8")
     })
 
-
-# fetch resume data
-@home_router.get("/profile/resume_data")
-async def get_resume_data(session:SessionDep,user:int):
+# create projects and app data
+@home_router.post("/create_profile/project")
+async def create_projects(sesssion:SessionDep,
+                          user_name:str = Form(),
+                          title:str = Form(),
+                          content:str = Form(),
+                          url:Optional[str] = Form()
+                        ):
+    stmt = select(Profile.id).where(Profile.name == user_name)
+    user_id = await sesssion.scalar(stmt)
+    upsert_stmt = insert(Project).values({
+        "user_id" : user_id,
+        "title" : title,
+        "content": content,
+        "url" : url
+    }).on_conflict_do_update(
+        index_elements=[Project.title],
+        set_={
+            "user_id" : user_id,
+            "content": content,
+            "url" : url
+        }
+    )
+    result = await sesssion.execute(upsert_stmt)
+    await sesssion.commit()
+    return JSONResponse({
+        "status": "UPSERT SUCCESSFULL",
+        "user_id" : user_id,
+        "title" : title,
+        "content": content,
+        "url" : url
+    })
+# CREATE IMAGE FOR PROJECTS APP AND DATA
+@home_router.post("/create_profile/project_image")
+async def create_project_image(session: SessionDep, image:List[UploadFile] = File(None), title:str = Form()):
+    project_id = await session.scalar(select(Project.id).where(Project.title == title))
+    data = []
+    if image:
+        for im in image:
+            image_bytes = await im.read()
+            url = suppabase.upload_file(image_bytes,im.content_type,fname=im.filename)
+            res = {
+                "project_id": project_id,
+                "image" : url
+            }
+            data.append(res)
+    for d in data:
+        
+        upsert_stmt = insert(ProjectsImage).values(d).on_conflict_do_update(
+            index_elements=["image"],
+            set_=d)
+        await session.execute(upsert_stmt)
+    await session.commit()
+    return JSONResponse(data)
+   
+   
     
+# fetch resume data
+@home_router.get("/profile/home_page_data")
+async def get_resume_data(session:SessionDep,user:int):
+    # QUERY FOR CONTACTS
     contact_stmt = select(Contact.barangay, Contact.city, Contact.email, Contact.mobile).join(Profile).where(Profile.id == user)
     
-    
+    #QUERY FOR EDUCATION DATA
     education_stmt = select(Education).join(Profile).where(Profile.id == user).order_by(desc(Education.id))
-    
+    #QUERY FOR WORKS DATA
     work_stmt =text('''
                 select 
                 works.user_id,
@@ -450,17 +507,17 @@ async def get_resume_data(session:SessionDep,user:int):
                     works.position,
                     works.date_hired,
                     works.date_end)''')
-   
+   #QUERY FOR SKILLS DATA
     skills_stmt = select(
         Skills.category,
         func.array_agg(Skills.skill).label("skill"),
         func.array_agg(Skills.proficiency).label("profeciency")).where(Skills.user_id == user).group_by(Skills.category).order_by(Skills.category)
-    
+    #  QUERY FOR LANGUAGE DATA
     lang_stmt = select(
         Lang.language,
         Lang.proficiency
     ).where(Lang.user_id == user)
-    
+    #  QUERY FOR INTERESTS DATA
     interests_stmt = select(
         Interests.interests,
         Interests.proficiency,
@@ -468,13 +525,27 @@ async def get_resume_data(session:SessionDep,user:int):
         Interests.image
     ).where(Interests.user_id == user)
     
-    
+    # QUERY FOR TOOLS DATA
     tools_stmt = select(
         Tools.tool_name,
         Tools.content,
         Tools.image
         ).where(Tools.user_id == user)
     
+    # QUERY PROJECTS
+    projects_stmt = select(
+        Project.id,
+        Project.title,
+        Project.content,
+        Project.url,
+        func.array_agg(ProjectsImage.image).label("images")
+    ).join(ProjectsImage, # pyright: ignore[reportCallIssue]
+           full=True).where(Project.user_id == user).group_by(
+                Project.id,Project.id,
+                Project.title,
+                Project.content,
+                Project.url) # pyright: ignore[reportArgumentType]
+        
     
     # QUERY EXECUTIOn
     contact_result = await session.execute(contact_stmt)
@@ -484,6 +555,7 @@ async def get_resume_data(session:SessionDep,user:int):
     lang_query = await session.execute(lang_stmt)
     interests_query = await session.execute(interests_stmt)
     tools_query = await session.execute(tools_stmt)
+    projects_query = await session.execute(projects_stmt)
     
     
     
@@ -517,6 +589,9 @@ async def get_resume_data(session:SessionDep,user:int):
     if not tools_data:
         return HTTPException(404, "Tools Data not Found")
     
+    projects_data = projects_query.mappings().all()
+    if not projects_data:
+        return HTTPException(404, "Projects Data not Found")
     
     # CONTACT
     contact_response = [{
@@ -564,6 +639,17 @@ async def get_resume_data(session:SessionDep,user:int):
                        "content": tool['content'],
                        "image": base64.b64encode(tool['image']).decode("utf-8")} for tool in tools_data]
     
+    # PROJECTS DATA
+    projects_response = [{
+        "id":project['id'],
+        "title": project['title'],
+        "content": project['content'],
+        "url": project['url'],
+        "image": project['images']
+                         } for project in projects_data]
+        
+            
+    
     return JSONResponse({
         "contact_data": contact_response,
         "education_data": education_response,
@@ -571,7 +657,8 @@ async def get_resume_data(session:SessionDep,user:int):
         "skills_data": skills_response,
         "language_data": lang_response,
         "interests_data": interests_response,
-        "tools_data": tools_response
+        "tools_data": tools_response,
+        "projects_data": projects_response
     })
     
     
@@ -597,6 +684,9 @@ async def landing_page(session:SessionDep, greetings:dict = Depends(greet)):
     
     return JSONResponse(data)
 
+
+
+# SEND AND RECEIVE EMAIL FROM THE SENDER
 @home_router.post("/send_email")
 async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] , file:UploadFile = File(None)):
     image = None
@@ -619,8 +709,7 @@ async def email(email: Annotated[str , Form()], content: Annotated[str, Form()] 
                      body= replymessage,
                      image=None,image_type=None,recipient=email, sender="richardrojo61@gmail.com")
 
-        
-    
+# GET DATA FOR THE HOMEPAGE TO DISPLAY
 @home_router.get("/home_page")
 async def get_data(session:SessionDep):
     stmt = select(Profile.content, Profile.profilepic).order_by(asc(cast(Profile.id, Integer)))

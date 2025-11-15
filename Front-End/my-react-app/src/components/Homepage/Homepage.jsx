@@ -17,9 +17,15 @@ import ComputerTwoToneIcon from '@mui/icons-material/ComputerTwoTone';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import DescriptionIcon from '@mui/icons-material/Description';
-
+import AppandProjects from "./components/App_projects/AppsProjects";
+import ClickSound from "../../assets/click-sound.mp3"
+import MenuItem from "@mui/material/MenuItem";
+import { useLocation, useNavigate } from "react-router-dom";
 function Homepage() {
+    const navigate = useNavigate()
+    const location = useLocation()
     const baseUrl = import.meta.env.VITE_BASE_URL
+    const SoundEffect = new Audio(ClickSound)
     const [data, setData] = useState(null)
     const [ishovered, setHovered] = useState(false)
     const [menus, setMenu] = useState([
@@ -27,19 +33,22 @@ function Homepage() {
             name: "ABOUT ME",
             active_icon: <InfoIcon />,
             inactive_icon: <InfoOutlinedIcon/>,
-            isActive: true
+            isActive: true,
+            ref: '/profile/aboutme'
         },
         {
             name: "RESUME",
             active_icon: <BadgeIcon/>,
             inactive_icon: <BadgeOutlinedIcon/>,
-            isActive: false
+            isActive: false,
+            ref: '/profile/resume'
         },
         {
             name: "APP & PROJECTS",
             active_icon: <ComputerTwoToneIcon/>,
             inactive_icon: <ComputerIcon />,
-            isActive: false
+            isActive: false,
+            ref: '/profile/project'
         },
         
         {
@@ -55,7 +64,7 @@ function Homepage() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res_data = await axios.get(`${baseUrl}/profile/resume_data?user=1`);
+                const res_data = await axios.get(`${baseUrl}/profile/home_page_data?user=1`);
                 setResumeData(res_data.data);
             } catch (error) {
                 console.error(error);
@@ -78,7 +87,7 @@ function Homepage() {
 
     function handleMenuButtonClick(event) {
         const name = event.target.name;
-
+        const menuItem = menus.find(m => m.name === name);
         setMenu((prevValue) =>
             prevValue.map((item) =>
                 item.name === name
@@ -86,6 +95,9 @@ function Homepage() {
                     : { ...item, isActive: false }
             )
         );
+        if(menuItem.ref) navigate(menuItem.ref)
+        SoundEffect.currentTime = 0
+        SoundEffect.play()
     }
 
     useEffect(() => {
@@ -118,8 +130,9 @@ function Homepage() {
             </Row>
             <Row className="vh-100 overflow-auto flex-grow-1">
                 <Col  className="d-flex ms-3 pb-3 justify-content-center">
-                    {menus[0].isActive && <Info infodata={data} resumedata={resumeData} />}
-                    {menus[1].isActive && <Resume data = {resumeData}/>}
+                    {location.pathname === "/profile/aboutme" && <Info infodata={data} resumedata={resumeData} />}
+                    {location.pathname === "/profile/resume" && <Resume data = {resumeData}/>}
+                    {location.pathname === "/profile/project" && <AppandProjects projects_data ={resumeData}/>}
                 </Col>
             </Row>
         </Container>

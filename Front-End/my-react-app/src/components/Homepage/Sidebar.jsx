@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 import Container from 'react-bootstrap/Container';
@@ -17,7 +16,7 @@ function Sidebar(props) {
                 <div className={`justify-content-start align-items-center mt-2`}>
                 {props.menus.map((m,index)=>(
                     <div key={index} className="gap-5">
-                        <Button  name={m.name} onClick={props.menubutonclick} color={`${m.isActive ? "primary" : ""}`}  className={`justify-content-${props.show ? "start" : "center"} side-bar-button ps-2 ms-0`} startIcon={m.isActive ? m.active_icon : m.inactive_icon}>{props.show ? m.name: ""}</Button>
+                        <Button name={m.name} onClick={props.menubutonclick} color={`${m.isActive ? "primary" : ""}`}  className={`justify-content-${props.show ? "start" : "center"} side-bar-button ps-2 ms-0`} startIcon={m.isActive ? m.active_icon : m.inactive_icon}>{props.show ? m.name: ""}</Button>
                     </div>
                 ))}
             </div>

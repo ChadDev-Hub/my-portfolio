@@ -12,11 +12,15 @@ import IconButton from "@mui/material/IconButton";
 import GmailIcon from "../../../../../assets/gmail-icon-logo-svgrepo-com.svg"
 import MessageForm from "../../../../landingpage/components/form";
 import SentSucess from "../../../../landingpage/components/messageSent";
+import HoverSound from "../../../../../assets/ui-pop.mp3"
 function ProfInfo(props) {
     const [showForm, setShowForm] = useState(false)
     const [isSent, setIsSent] = useState(false)
-
+    const hoverSound = new Audio(HoverSound)
     const baseURL = import.meta.env.VITE_BASE_URL
+
+   
+
     // SHOW FORM
     function HandleShowForm() {
         setShowForm(!showForm)
@@ -34,6 +38,12 @@ function ProfInfo(props) {
         }, 3000)
     }, [isSent])
 
+
+    //  Handle Hover Sounde Effect
+    function handlePlay(){
+        hoverSound.currentTime = 0
+        hoverSound.play()
+    }
 
     return (
         <Stack>
@@ -62,7 +72,7 @@ function ProfInfo(props) {
                             </div>
                             <div className="d-flex overflow-auto flex-nowrap gap-2">
                                 <EmailIcon />
-                                <p onMouseOver={console.log("hellow world")} className="cursor-pointer">
+                                <p className="cursor-pointer">
                                     richardrojo61@gmail.com
                                 </p>
 
@@ -71,22 +81,22 @@ function ProfInfo(props) {
                             </div>
                             <ul className="d-flex flex-sm-column justify-content-evenly gap-4">
                                 <li>
-                                    <IconButton href="https://www.upwork.com/freelancers/~01c94604f88f19d080?mp_source=share">
+                                    <IconButton onMouseEnter={handlePlay}  href="https://www.upwork.com/freelancers/~01c94604f88f19d080?mp_source=share">
                                         <img className="links" src={UpworkIcon} alt="Upwork" />
                                     </IconButton>
                                 </li>
                                 <li>
-                                    <IconButton href="https://github.com/ChadDev-Hub">
+                                    <IconButton onMouseEnter={handlePlay}  href="https://github.com/ChadDev-Hub">
                                         <img className="links" src={GitHubIcon} alt="Github" />
                                     </IconButton>
                                 </li>
                                 <li>
-                                    <IconButton href="https://www.linkedin.com/in/richard06/">
+                                    <IconButton onMouseEnter={handlePlay}  href="https://www.linkedin.com/in/richard06/">
                                         <img className="links" src={LinkedIn} alt="linkedIn" />
                                     </IconButton>
                                 </li>
                                 <li>
-                                    <IconButton onClick={HandleShowForm}>
+                                    <IconButton onMouseEnter={handlePlay} onClick={HandleShowForm}>
                                         <img className="links" src={GmailIcon} alt="gmail" />
                                     </IconButton>
                                 </li>
