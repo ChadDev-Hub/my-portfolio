@@ -17,7 +17,6 @@ from contextlib import asynccontextmanager
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, Content, Email, To, FileContent, FileType, FileName, Disposition
 from dotenv import load_dotenv
-import imghdr
 from ..db.suppabase import Supa
 load_dotenv()
 SENGRID_API = os.getenv("SENDGRID")
