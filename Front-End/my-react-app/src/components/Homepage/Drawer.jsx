@@ -115,7 +115,7 @@ export default function MiniDrawer(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar position="fixed"  open={open}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -131,8 +131,9 @@ export default function MiniDrawer(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+          <Box sx={{ flexGrow: 1 }} />
+          <Typography variant="h6" noWrap component="div" justifyContent={"end"}>
+            Richard Portfolio
           </Typography>
         </Toolbar>
       </AppBar>
