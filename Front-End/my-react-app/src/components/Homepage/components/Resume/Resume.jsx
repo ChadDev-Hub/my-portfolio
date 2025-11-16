@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Container, Stack } from "react-bootstrap";
+import React from "react";
 import {TextLoading, ResumeDataLoading} from "../../../Loading";
-import axios from "axios";
+
 
 function Resume(props) {
     const contact = props.data.contact_data
@@ -11,8 +10,9 @@ function Resume(props) {
     const lang = props.data.language_data
     const interests = props.data.interests_data
     return (
-        <div className="border border-light mt-5 w-100 ps-4 pe-4 ps-md-5 pb-5 pt-5 pe-md-5 bg-light shadow-lg rounded" style={{ maxWidth: "1140px" }}>
-            <div className="d-flex justify-content-center pt-4">
+        <div className="d-flex justify-content-center w-100">
+            <div className="border border shadow rounded mt-5 ps-4 pe-4 ps-md-5 pb-5 pt-5 pe-md-5" style={{maxWidth:1200}}>
+                <div className="d-flex justify-content-center pt-4">
                 <h3>RICHARD F. ROJO JR.</h3>
             </div>
             <hr />
@@ -106,6 +106,9 @@ function Resume(props) {
                     <li key={index}>{interest.interest}</li>)}
                 </ul>
             </div>
+
+            </div>
+            
         </div>
 
     )

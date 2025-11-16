@@ -22,7 +22,7 @@ function Cards(props) {
     }
     return (
         <Grid container
-            gap={{xs:2, md: 2 }}
+            gap={{ xs: 2, md: 2 }}
             marginTop={{ xs: 2, md: 3 }}
             spacing={{ xs: 2, sm: 2, md: 2 }}
             maxWidth={1200}>
@@ -30,29 +30,25 @@ function Cards(props) {
                 <Grid></Grid>
                 :
                 projects_data.map((proj) => (
-                        <Card key={proj.id}   className="proj" sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}  onMouseEnter={handlePlay}>
-                            <CardHeader title={proj.title} />
-                          
-                            <CardMedia className="bg-transparent">
-                                <Image images = {proj.image}/>
-                            </CardMedia>
-                            
-                            <CardContent sx={{ flexGrow: 1, alignItems: "center" }}>
-                                <Typography variant="body2"
-                                    sx={{ color: 'text.secondary' }}>
-                                    {proj.content}
-                                </Typography>
-                            </CardContent>
-                            <CardActions className="bg-body-secondary" disableSpacing sx={{ justifyContent: "flex-end", alignContent: "flex-end" }}>
-                                <IconButton className="shadow border border-light" href={proj.url}>
-                                    <LinkIcon />
-                                </IconButton>
-                            </CardActions>
-                        </Card>
+                    <Card key={proj.id} sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}>
+                        <CardHeader title={proj.title} />
 
+                        <CardMedia className="bg-transparent">
+                            <Image images={proj.image} />
+                        </CardMedia>
 
-
-                        
+                        <CardContent sx={{ flexGrow: 1, alignItems: "center" }}>
+                            <Typography variant="body2"
+                                sx={{ color: 'text.secondary' }}>
+                                {proj.content}
+                            </Typography>
+                        </CardContent>
+                        <CardActions className="bg-body-secondary" disableSpacing sx={{ justifyContent: "flex-end", alignContent: "flex-end" }}>
+                            <IconButton onClick={handlePlay} className="shadow border border-light" href={proj.url}>
+                                <LinkIcon />
+                            </IconButton>
+                        </CardActions>
+                    </Card>
                 )
 
                 )}

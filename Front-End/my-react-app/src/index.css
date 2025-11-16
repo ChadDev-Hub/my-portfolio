@@ -397,11 +397,6 @@ footer {
   backdrop-filter: blur(10px);         /* other modern browsers */
 }
 
-.proj:hover{
-  transform: scale(1.1,1.1);
-  transition: 0.6s ease;
-}
-
 @media screen and (max-width: 480px) {
 
   .portfolio-title{
