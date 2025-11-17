@@ -133,7 +133,6 @@ function Homepage() {
                     {!isSmallScreen? <Navigations menus={menus} menubutonclick={handleMenuButtonClick}/>:""}
                 </Paper>
             </Box>
-            
         </Box>
     )
 }

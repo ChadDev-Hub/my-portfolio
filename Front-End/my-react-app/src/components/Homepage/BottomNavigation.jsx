@@ -17,7 +17,7 @@ function Navigations(props){
                 key={index}
                 data-name= {m.name}
                 value={m.name}
-                icon={ m.active_icon}/>
+                icon={m.isActive? m.active_icon : m.inactive_icon}/>
             ))}
         </BottomNavigation>
     )
