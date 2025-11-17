@@ -397,8 +397,11 @@ footer {
   backdrop-filter: blur(10px);         /* other modern browsers */
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
 @media screen and (max-width: 480px) {
 
   .portfolio-title{

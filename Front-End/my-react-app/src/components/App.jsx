@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Landing from './landingpage/landingpage'
 import Homepage from './Homepage/Homepage'
+import MiniDrawer from './Homepage/Drawer'
 function App() {
   return (
     <BrowserRouter>
