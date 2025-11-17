@@ -388,20 +388,15 @@ footer {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.2);      /* semi-transparent */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* optional border */
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);      
+  /* border: 1px solid rgba(255, 255, 255, 0.3); 
+  border-radius: 12px; */
   
   /* Frosted glass effect */
-  -webkit-backdrop-filter: blur(10px); /* Safari/iOS support */
-  backdrop-filter: blur(10px);         /* other modern browsers */
+  -webkit-backdrop-filter: blur(10px); 
+  backdrop-filter: blur(5px);         
 }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
 @media screen and (max-width: 480px) {
 
   .portfolio-title{

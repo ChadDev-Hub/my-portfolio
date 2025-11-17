@@ -30,30 +30,8 @@ function Cards(props) {
                 <Grid></Grid>
                 :
                 projects_data.map((proj) => (
-<<<<<<< HEAD
-                        <Card key={proj.id}  sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}>
-                            <CardHeader title={proj.title} />
-                          
-                            <CardMedia className="bg-transparent">
-                                <Image images = {proj.image}/>
-                            </CardMedia>
-                            
-                            <CardContent sx={{ flexGrow: 1, alignItems: "center" }}>
-                                <Typography variant="body2"
-                                    sx={{ color: 'text.secondary' }}>
-                                    {proj.content}
-                                </Typography>
-                            </CardContent>
-                            <CardActions className="bg-body-secondary" disableSpacing sx={{ justifyContent: "flex-end", alignContent: "flex-end" }}>
-                                <IconButton onClick={handlePlay} className="shadow border border-light" href={proj.url}>
-                                    <LinkIcon />
-                                </IconButton>
-                            </CardActions>
-                        </Card>
-=======
                     <Card key={proj.id} sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}>
                         <CardHeader title={proj.title} />
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
 
                         <CardMedia className="bg-transparent">
                             <Image images={proj.image} />

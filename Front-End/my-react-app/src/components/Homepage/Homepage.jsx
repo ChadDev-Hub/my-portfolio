@@ -25,7 +25,8 @@ import MiniDrawer from "./Drawer";
 import Box from '@mui/material/Box';
 import { styled} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
+import Navigations from "./BottomNavigation";
+import Paper from '@mui/material/Paper';
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -88,22 +89,9 @@ function Homepage() {
         fetchData();
     }, [baseUrl]);
 
-    // function handleHover() {
-    //     setHovered(true)
-    // }
-
-    // function handleLeave() {
-    //     setHovered(false)
-    // }
-
-    // function handleClick() {
-    //     setHovered(!ishovered)
-    // }
-
     function handleMenuButtonClick(event) {
         const name = event.currentTarget.dataset.name;
         const menuItem = menus.find(m => m.name === name);
-        console.log(name)
         setMenu((prevValue) =>
             prevValue.map((item) =>
                 item.name === name
@@ -141,7 +129,11 @@ function Homepage() {
                 {location.pathname === "/profile/aboutme" && <Info infodata={data} resumedata={resumeData} />}
                 {location.pathname === "/profile/resume" && <Resume data={resumeData} />}
                 {location.pathname === "/profile/project" && <AppandProjects projects_data={resumeData} />}
+                <Paper className="glass bg-transparent border border rounded-pill" sx={{zIndex:999, position: 'fixed', bottom: 9, left: 20, right: 20, display:"flex", justifyContent:"center", alignItems:"center"}}>
+                    {!isSmallScreen? <Navigations menus={menus} menubutonclick={handleMenuButtonClick}/>:""}
+                </Paper>
             </Box>
+            
         </Box>
     )
 }
