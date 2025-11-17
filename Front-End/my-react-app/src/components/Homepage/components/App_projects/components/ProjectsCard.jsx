@@ -30,7 +30,7 @@ function Cards(props) {
                 <Grid></Grid>
                 :
                 projects_data.map((proj) => (
-                        <Card key={proj.id}   className="proj" sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}  onMouseEnter={handlePlay}>
+                        <Card key={proj.id}  sx={{ maxWidth: 300, display: "flex", flexDirection: "column" }}>
                             <CardHeader title={proj.title} />
                           
                             <CardMedia className="bg-transparent">
@@ -44,7 +44,7 @@ function Cards(props) {
                                 </Typography>
                             </CardContent>
                             <CardActions className="bg-body-secondary" disableSpacing sx={{ justifyContent: "flex-end", alignContent: "flex-end" }}>
-                                <IconButton className="shadow border border-light" href={proj.url}>
+                                <IconButton onClick={handlePlay} className="shadow border border-light" href={proj.url}>
                                     <LinkIcon />
                                 </IconButton>
                             </CardActions>
