@@ -143,33 +143,6 @@ function Homepage() {
                 {location.pathname === "/profile/project" && <AppandProjects projects_data={resumeData} />}
             </Box>
         </Box>
-
-
-        // <>
-        // <Navigation show={ishovered} click={handleClick} navdata={data} />
-        // <Container fluid className="d-flex  ps-0 me-2">
-        //     <Row className= {`vh-100 flex-shrink-1`}>
-        //         <Col>
-        //             <Sidebar
-        //                 show={ishovered}
-        //                 inside={handleHover}
-        //                 outside={handleLeave}
-        //                 menus={menus}
-        //                 menubutonclick={handleMenuButtonClick}
-        //             />
-        //         </Col>
-        //     </Row>
-        //     <Row className="vh-100 overflow-auto flex-grow-1">
-        //         <Col  className="d-flex ms-3 pb-3 justify-content-center">
-        //             {location.pathname === "/profile/aboutme" && <Info infodata={data} resumedata={resumeData} />}
-        //             {location.pathname === "/profile/resume" && <Resume data = {resumeData}/>}
-        //             {location.pathname === "/profile/project" && <AppandProjects projects_data ={resumeData}/>}
-        //         </Col>
-        //     </Row>
-        // </Container>
-        // </>
-
-
     )
 }
 export default Homepage

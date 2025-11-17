@@ -18,11 +18,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-<<<<<<< HEAD
-
-=======
 import Button from '@mui/material/Button';
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -103,11 +99,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-<<<<<<< HEAD
-export default function MiniDrawer() {
-=======
 export default function MiniDrawer(props) {
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -119,18 +111,11 @@ export default function MiniDrawer(props) {
     setOpen(false);
   };
 
-<<<<<<< HEAD
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-=======
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed"  open={open}>
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
         <Toolbar>
           <IconButton
             color="inherit"
@@ -146,14 +131,6 @@ export default function MiniDrawer(props) {
           >
             <MenuIcon />
           </IconButton>
-<<<<<<< HEAD
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-=======
           <Box sx={{ flexGrow: 1 }} />
           <Typography variant="h6" noWrap component="div" justifyContent={"end"}>
             Richard Portfolio
@@ -161,7 +138,6 @@ export default function MiniDrawer(props) {
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open} onMouseOver={handleDrawerOpen} onMouseOut={handleDrawerClose}>
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
@@ -169,17 +145,11 @@ export default function MiniDrawer(props) {
         </DrawerHeader>
         <Divider />
         <List>
-<<<<<<< HEAD
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-=======
           {props.menus.map((menu, index) => (
             <ListItem key={index} disablePadding sx={{ display: 'block' }} >
               <ListItemButton
                 data-name={menu.name}
                 onClick={props.menubutonclick}
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
                 sx={[
                   {
                     minHeight: 48,
@@ -209,69 +179,10 @@ export default function MiniDrawer(props) {
                         },
                   ]}
                 >
-<<<<<<< HEAD
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: 'initial',
-                      }
-                    : {
-                        justifyContent: 'center',
-                      },
-                ]}
-              >
-                <ListItemIcon
-                  sx={[
-                    {
-                      minWidth: 0,
-                      justifyContent: 'center',
-                    },
-                    open
-                      ? {
-                          mr: 3,
-                        }
-                      : {
-                          mr: 'auto',
-                        },
-                  ]}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
-=======
                 {menu.isActive? menu.active_icon: menu.inactive_icon}
                 </ListItemIcon>
                 <ListItemText
                   primary={menu.name}
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
                   sx={[
                     open
                       ? {
@@ -287,10 +198,6 @@ export default function MiniDrawer(props) {
           ))}
         </List>
       </Drawer>
-<<<<<<< HEAD
-    
-=======
->>>>>>> c509c60253bc1a6605549b2c4d09aae458682bbd
     </Box>
   );
 }
