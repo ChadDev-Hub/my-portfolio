@@ -120,7 +120,7 @@ function Homepage() {
 
 
     return (
-        <Box>
+        <Box sx={{paddingBottom:{xs:10, md:3}}}>
             {isSmallScreen ? <MiniDrawer
                 menus={menus}
                 menubutonclick={handleMenuButtonClick}/> : ""}
@@ -129,9 +129,9 @@ function Homepage() {
                 {location.pathname === "/profile/aboutme" && <Info infodata={data} resumedata={resumeData} />}
                 {location.pathname === "/profile/resume" && <Resume data={resumeData} />}
                 {location.pathname === "/profile/project" && <AppandProjects projects_data={resumeData} />}
-                <Paper className="glass bg-transparent border border rounded-pill" sx={{zIndex:999, position: 'fixed', bottom: 9, left: 20, right: 20, display:"flex", justifyContent:"center", alignItems:"center"}}>
-                    {!isSmallScreen? <Navigations menus={menus} menubutonclick={handleMenuButtonClick}/>:""}
-                </Paper>
+                {!isSmallScreen? <Paper className="glass bg-transparent border border rounded-pill" sx={{zIndex:999, position: 'fixed', bottom: 10, left: 20, right: 20, display:"flex", justifyContent:"center", alignItems:"center"}}>
+                     <Navigations menus={menus} menubutonclick={handleMenuButtonClick}/>
+                </Paper> :""}
             </Box>
         </Box>
     )
