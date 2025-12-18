@@ -46,7 +46,6 @@
 .profpic {
   width: 300px;
   height: 1rem;
-  transition: transform 0.3s ease, filter 0.3s ease;
 }
 .profpic:hover{
   filter: drop-shadow(0 0 1.2em #61dafbaa);

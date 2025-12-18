@@ -82,7 +82,6 @@ function Resume(props) {
                             {sk?.skills?.map((name, index)=>
                             <div key={index} className="d-flex justify-content-between">
                                 <li>{name.name}</li>
-                                <p>{"⭐".repeat(name.prof)}</p>
                             </div>)}
                             
                         </ul>
@@ -96,7 +95,6 @@ function Resume(props) {
                     lang.map((l, index)=>
                     <li key={index} className="d-flex justify-content-between">
                         <h6>{l.language}</h6>
-                        <p>{"⭐".repeat(l.proficiency)}</p>
                     </li>)}
                 </ul>
                 <h5>Interests:</h5>

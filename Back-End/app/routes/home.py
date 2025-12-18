@@ -57,19 +57,6 @@ def send_email(subject, body, image:Optional[bytes], sender, recipient, image_ty
         
 
 
-def greet():
-    hour = datetime.now().hour  # directly get hour as integer
-    
-    if hour < 10:
-        greeting = "Good Morning 🌅"
-    elif hour <= 12:
-        greeting = "Good Noon ☀️"
-    elif hour <= 17:
-        greeting = "Good Afternoon 🕑"
-    else:
-        greeting = "Good Evening 🌃"
-    
-    return {"greeting": greeting}
 
 @home_router.post("/create_profile")
 async def create_profile(session: SessionDep,
@@ -664,7 +651,7 @@ async def get_resume_data(session:SessionDep,user:int):
 
 # fetch data from the database for Landingpage
 @home_router.get("/")
-async def landing_page(session:SessionDep, greetings:dict = Depends(greet)):
+async def landing_page(session:SessionDep):
     stmt = select(Profile.name, Profile.about, Profile.summary, Profile.profilepic).order_by(asc(cast(Profile.id, Integer)))
     profile = await session.execute(stmt)
     row = profile.first()
@@ -677,8 +664,7 @@ async def landing_page(session:SessionDep, greetings:dict = Depends(greet)):
         "name": name,
         "about": about,
         "summary": summary,
-        "profile": profile_image,
-        "time": greetings['greeting']
+        "profile": profile_image
     }
     
     return JSONResponse(data)

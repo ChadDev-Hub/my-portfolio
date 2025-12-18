@@ -27,6 +27,8 @@ import { styled} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Navigations from "./BottomNavigation";
 import Paper from '@mui/material/Paper';
+import { NavLink} from "react-router-dom";
+
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
