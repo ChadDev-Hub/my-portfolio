@@ -82,22 +82,22 @@ export default function Navbar({ children }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  // // AUTO CAROUSAL
-  // useEffect(() => {
-  //   if (pause) return;
-  //   const timeout = setTimeout(() => {
-  //     const hash = window.location.hash || "#home";
-  //     const prevIndex = navItems.findIndex((item) => item.href === hash);
+  // AUTO CAROUSAL
+  useEffect(() => {
+    if (pause) return;
+    const timeout = setTimeout(() => {
+      const hash = window.location.hash || "#home";
+      const prevIndex = navItems.findIndex((item) => item.href === hash);
 
-  //     const nextIndex = (prevIndex + 1) % navItems.length;
+      const nextIndex = (prevIndex + 1) % navItems.length;
 
-  //     const nextHash = navItems[nextIndex].href;
+      const nextHash = navItems[nextIndex].href;
 
-  //     window.location.hash = nextHash;
-  //   }, 2000);
+      window.location.hash = nextHash;
+    }, 2000);
 
-  //   return () => clearTimeout(timeout);
-  // }, [activeHash, pause]);
+    return () => clearTimeout(timeout);
+  }, [activeHash, pause]);
 
   return (
     <NavbarContext.Provider
